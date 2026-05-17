@@ -1,0 +1,32 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OS Lab Terminal</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="terminal">
+    <form id="cmdForm" class="cmd-form">
+      <span class="prompt-user">student@os</span>
+      <span class="prompt-path" id="promptPath">:/$</span>
+      <input id="cmdInput" class="cmd-input" autocomplete="off" spellcheck="false" placeholder="vi EXP11/best.c" />
+      <button type="submit" class="run-btn">run</button>
+      <button id="copyBtn" type="button" class="copy-btn">copy</button>
+    </form>
+
+    <div class="meta-line" id="fileName">Command</div>
+
+    <section class="output-wrap">
+      <pre id="codeView" class="code-view"><code>Type: ls, cd EXP11, vi best.c, Hello</code></pre>
+      <div id="relatedWrap" class="related-wrap hidden">
+        <div class="related-title">Directory Listing</div>
+        <pre id="relatedCode" class="code-view related-code"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js" type="module"></script>
+</body>
+</html>

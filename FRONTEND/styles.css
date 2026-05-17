@@ -1,0 +1,68 @@
+﻿:root {
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --line: #dbe4ef;
+  --text: #132133;
+  --muted: #63758d;
+  --accent: #2f6fed;
+  --error: #de5b65;
+
+  --term-bg: #000000;
+  --term-line: #1d1d1d;
+  --term-text: #e9edf3;
+  --term-muted: #8f97a3;
+  --term-accent: #4f85ff;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { font-family: "Segoe UI", system-ui, sans-serif; }
+.hidden { display: none; }
+
+.terminal {
+  min-height: 100vh;
+  background: var(--term-bg);
+  color: var(--term-text);
+  font-family: "Ubuntu Mono", "Courier New", monospace;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cmd-form, .meta-line, .output-wrap { border-bottom: 1px solid var(--term-line); padding: 10px 14px; }
+.cmd-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.prompt-user { color: var(--term-text); }
+.prompt-path { color: var(--term-accent); }
+.cmd-input { flex: 1; min-width: 220px; background: transparent; border: 0; outline: none; color: var(--term-text); font: inherit; }
+.run-btn, .copy-btn {
+  background: #101010;
+  color: var(--term-text);
+  border: 1px solid #2b2b2b;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font: inherit;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+.meta-line { color: var(--term-muted); }
+.output-wrap { flex: 1; min-height: 0; display: grid; gap: 10px; }
+.code-view {
+  margin: 0;
+  white-space: pre;
+  overflow: auto;
+  color: #cdd6e1;
+  line-height: 1.35;
+  border: 1px solid var(--term-line);
+  border-radius: 8px;
+  padding: 10px;
+}
+.error { color: #f09199; }
+.related-title { color: var(--term-accent); margin-bottom: 6px; }
+.related-code { max-height: 35vh; }
+
+@media (max-width: 768px) {
+  .terminal { font-size: 14px; }
+  .cmd-input { min-width: 100%; }
+  .run-btn, .copy-btn { min-height: 36px; }
+  .code-view { font-size: 13px; max-height: 50vh; }
+}
