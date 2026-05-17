@@ -1,6 +1,4 @@
-﻿import { fsTree } from './fs-tree.js';
-
-const cmdForm = document.getElementById('cmdForm');
+﻿const cmdForm = document.getElementById('cmdForm');
 const cmdInput = document.getElementById('cmdInput');
 const codeView = document.getElementById('codeView');
 const fileName = document.getElementById('fileName');
@@ -11,6 +9,7 @@ const promptPath = document.getElementById('promptPath');
 
 let currentCode = '';
 let cwd = [];
+let fsTree = null;
 
 function pathToString(parts) {
   return parts.length ? `/${parts.join('/')}` : '/';
@@ -21,12 +20,19 @@ function setPrompt() {
 }
 
 function getNode(parts) {
+  if (!fsTree) return null;
   let node = fsTree;
   for (const p of parts) {
     if (!node.children || !node.children[p]) return null;
     node = node.children[p];
   }
   return node;
+}
+
+async function loadFsTree() {
+  const res = await fetch('./fs-tree.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error('Could not load file tree');
+  fsTree = await res.json();
 }
 
 function resolvePath(input) {
@@ -166,14 +172,13 @@ cmdForm.addEventListener('submit', async (e) => {
   await runCommand(raw);
 });
 
-(function init() {
-  setPrompt();
-  renderCode('Command', 'Type vi EXP11/best.c and press run.');
-  cmdInput.focus();
+(async function init() {
+  try {
+    await loadFsTree();
+    setPrompt();
+    renderCode('Command', 'Type vi EXP11/best.c and press run.');
+    cmdInput.focus();
+  } catch (err) {
+    renderError(err.message);
+  }
 })();
-
-
-
-
-
-

@@ -1,6 +1,4 @@
-﻿import { fsTree } from './fs-tree.js';
-
-const expGrid = document.getElementById('expGrid');
+﻿const expGrid = document.getElementById('expGrid');
 const explorerList = document.getElementById('explorerList');
 const viewer = document.getElementById('viewer');
 const statusEl = document.getElementById('status');
@@ -18,9 +16,17 @@ let currentPath = [];
 let currentMainCode = '';
 let currentMainFile = '';
 let query = '';
+let fsTree = null;
 let favorites = new Set(JSON.parse(localStorage.getItem('dashboard_favs') || '[]'));
 
+async function loadFsTree() {
+  const res = await fetch('./fs-tree.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error('Could not load file tree');
+  fsTree = await res.json();
+}
+
 function getNode(parts) {
+  if (!fsTree) return null;
   let node = fsTree;
   for (const p of parts) {
     if (!node.children || !node.children[p]) return null;
@@ -299,15 +305,15 @@ themeBtn.addEventListener('click', () => {
   themeBtn.textContent = next === 'dark' ? 'light' : 'dark';
 });
 
-(function init() {
-  const saved = localStorage.getItem('dashboard_theme') || 'dark';
-  document.body.setAttribute('data-theme', saved);
-  themeBtn.textContent = saved === 'dark' ? 'light' : 'dark';
-  statusEl.textContent = 'Ready.';
-  render();
+(async function init() {
+  try {
+    await loadFsTree();
+    const saved = localStorage.getItem('dashboard_theme') || 'dark';
+    document.body.setAttribute('data-theme', saved);
+    themeBtn.textContent = saved === 'dark' ? 'light' : 'dark';
+    statusEl.textContent = 'Ready.';
+    render();
+  } catch (err) {
+    statusEl.textContent = err.message;
+  }
 })();
-
-
-
-
-
