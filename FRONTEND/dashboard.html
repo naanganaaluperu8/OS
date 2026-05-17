@@ -3,37 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OS Code Dashboard</title>
+  <title>Experiment Explorer</title>
   <link rel="stylesheet" href="./dashboard.css" />
 </head>
 <body>
   <main class="page">
     <header class="top">
-      <h1>OS Explorer</h1>
-      <a href="./index.html" class="back-link">Back to Terminal</a>
+      <div>
+        <h1>Experiment Explorer</h1>
+        <p class="sub">Modern code browser for OS lab folders</p>
+      </div>
+      <div class="top-actions">
+        <button id="themeBtn" class="ghost-btn" type="button">light</button>
+        <a href="./index.html" class="back-link">Back to Terminal</a>
+      </div>
     </header>
 
-    <section id="expGrid" class="exp-grid" aria-label="Folder boxes"></section>
-
-    <section id="viewer" class="viewer hidden">
-      <article class="card">
-        <div class="card-head">
-          <div id="mainTitle" class="file-name">File</div>
-          <button id="mainCopyBtn" class="copy-btn" type="button">Copy</button>
-        </div>
-        <pre id="mainCode" class="code reader"></pre>
-      </article>
-
-      <article id="pkgCard" class="card hidden">
-        <div class="card-head">
-          <div class="file-name">Items</div>
-          <button id="pkgCopyBtn" class="copy-btn" type="button">Copy</button>
-        </div>
-        <pre id="pkgCode" class="code"></pre>
-      </article>
+    <section class="toolbar">
+      <nav id="breadcrumb" class="breadcrumb" aria-label="Breadcrumb"></nav>
+      <div class="search-wrap">
+        <input id="searchInput" type="search" placeholder="Search experiments/files" aria-label="Search" />
+      </div>
     </section>
 
-    <p id="note" class="note">Type Hello in terminal to open this dashboard.</p>
+    <section id="status" class="status">Loading explorer...</section>
+
+    <section id="expGrid" class="exp-grid" aria-label="Experiments"></section>
+    <section id="explorerList" class="explorer-list hidden" aria-label="Folder contents"></section>
+
+    <section id="viewer" class="viewer hidden" aria-label="Code viewer">
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <div id="mainTitle" class="file-name">File</div>
+            <div id="fileMeta" class="meta"></div>
+          </div>
+          <div class="head-actions">
+            <button id="mainCopyBtn" class="copy-btn" type="button">Copy</button>
+            <button id="downloadBtn" class="copy-btn" type="button">Download</button>
+          </div>
+        </div>
+        <pre id="mainCode" class="code"></pre>
+      </article>
+    </section>
   </main>
   <script src="./dashboard.js" type="module"></script>
 </body>
