@@ -113,12 +113,7 @@ function renderExperiments(rootNode) {
   expGrid.innerHTML = '';
   const entries = Object.entries(rootNode.children || {})
     .map(([name, node]) => ({ name, node }))
-    .filter((x) => {
-      const n = x.name.toLowerCase();
-      const isDir = x.node.type === 'dir';
-      const isCFile = x.node.type === 'file' && n.endsWith('.c');
-      return (isDir || isCFile) && n.includes(query);
-    })
+    .filter((x) => x.name.toLowerCase().includes(query))
     .sort((a, b) => {
       if (a.node.type !== b.node.type) return a.node.type === 'dir' ? -1 : 1;
       return a.name.localeCompare(b.name);
