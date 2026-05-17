@@ -118,36 +118,47 @@ function renderBreadcrumb() {
 function renderExperiments(rootNode) {
   expGrid.innerHTML = '';
   const entries = Object.entries(rootNode.children || {})
-    .filter(([, n]) => n.type === 'dir')
     .map(([name, node]) => ({ name, node }))
     .filter((x) => x.name.toLowerCase().includes(query))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => {
+      if (a.node.type !== b.node.type) return a.node.type === 'dir' ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
 
   if (!entries.length) {
     statusEl.textContent = 'No experiments match your search.';
     return;
   }
 
-  statusEl.textContent = `${entries.length} experiment folders`;
+  const folderCount = entries.filter((e) => e.node.type === 'dir').length;
+  const fileCount = entries.length - folderCount;
+  statusEl.textContent = `${folderCount} folders • ${fileCount} files`;
 
   entries.forEach(({ name, node }) => {
-    const meta = countMeta(node);
     const key = name;
     const card = document.createElement('article');
     card.className = 'exp-card';
+    const isDir = node.type === 'dir';
+    const meta = isDir ? countMeta(node) : { files: 1, dirs: 0 };
+    const icon = isDir ? '📁' : '📄';
+    const metaText = isDir ? `${meta.files} files • ${meta.dirs} folders` : 'File';
     card.innerHTML = `
       <div class="exp-head">
-        <span class="icon">📁</span>
+        <span class="icon">${icon}</span>
         <button class="star ${favorites.has(key) ? 'active' : ''}" type="button" title="Favorite">★</button>
       </div>
       <h3 class="exp-title">${name}</h3>
-      <div class="meta">${meta.files} files • ${meta.dirs} folders</div>
+      <div class="meta">${metaText}</div>
     `;
 
     card.addEventListener('click', () => {
-      currentPath = [name];
-      viewer.classList.add('hidden');
-      render();
+      if (isDir) {
+        currentPath = [name];
+        viewer.classList.add('hidden');
+        render();
+      } else {
+        openFile(name, node);
+      }
     });
 
     card.querySelector('.star').addEventListener('click', (e) => {
