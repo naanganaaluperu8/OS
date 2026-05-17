@@ -1,4 +1,6 @@
-﻿const expGrid = document.getElementById('expGrid');
+﻿import { fsTree } from './fs-tree.js';
+
+const expGrid = document.getElementById('expGrid');
 const explorerList = document.getElementById('explorerList');
 const viewer = document.getElementById('viewer');
 const statusEl = document.getElementById('status');
@@ -17,20 +19,6 @@ let currentMainCode = '';
 let currentMainFile = '';
 let query = '';
 let favorites = new Set(JSON.parse(localStorage.getItem('dashboard_favs') || '[]'));
-
-const fsTree = {
-  type: 'dir',
-  children: {
-    '13.c': { type: 'file' }, '7.c': { type: 'file' }, 'a.out': { type: 'file', binary: true },
-    'EXP11': { type: 'dir', children: { 'a.out': { type: 'file', binary: true }, 'best.c': { type: 'file' }, 'first.c': { type: 'file' }, 'worst.c': { type: 'file' } } },
-    'EXP12': { type: 'dir', children: { 'a.out': { type: 'file', binary: true }, 'FIFO.c': { type: 'file' }, 'LRU.c': { type: 'file' }, 'Optimal.c': { type: 'file' } } },
-    'EXP14': { type: 'dir', children: { '14a.c': { type: 'file' }, '14b.c': { type: 'file' }, '14c.c': { type: 'file' }, 'a.out': { type: 'file', binary: true } } },
-    'EXP2': { type: 'dir', children: { '2b': { type: 'dir', children: { 'armstrong.sh': { type: 'file' }, 'factorial.sh': { type: 'file' }, 'fibo.sh': { type: 'file' }, 'greatest_of_three_number.sh': { type: 'file' }, 'menu_calc.sh': { type: 'file' }, 'prime.sh': { type: 'file' }, 'sum_of_two_numbers.sh': { type: 'file' }, 'swap_of_two_numbers.sh': { type: 'file' } } }, '2c': { type: 'dir', children: { 'a.out': { type: 'file', binary: true }, 'copy.txt': { type: 'file' }, 'cp.c': { type: 'file' }, 'grep.c': { type: 'file' }, 'ls.c': { type: 'file' }, 'mov_copy.c': { type: 'file' } } } } },
-    'EXP3': { type: 'dir', children: { 'a.out': { type: 'file', binary: true }, 'fork.c': { type: 'file' }, 'getpid.c': { type: 'file' }, 'opendir.c': { type: 'file' }, 'sleep.c': { type: 'file' }, 'stat.c': { type: 'file' }, 'wait.c': { type: 'file' } } },
-    'EXP4': { type: 'dir', children: { 'a.out': { type: 'file', binary: true }, 'fcfs.c': { type: 'file' }, 'prii_non.c': { type: 'file' }, 'prii_pre.c': { type: 'file' }, 'pri_pre.c': { type: 'file' }, 'rr.c': { type: 'file' }, 'sjf.c': { type: 'file' } } },
-    'EXP5': { type: 'dir', children: { '5c.c': { type: 'file' }, 'a.out': { type: 'file', binary: true }, '5a': { type: 'dir', children: { 'a.out': { type: 'file', binary: true }, 'reader.c': { type: 'file' }, 'writer.c': { type: 'file' }, '5a_trial': { type: 'dir', children: { 'reader': { type: 'file', binary: true }, 'reader.c': { type: 'file' }, 'writer': { type: 'file', binary: true }, 'writer.c': { type: 'file' }, '5b': { type: 'dir', children: { 'a.out': { type: 'file', binary: true }, 'rec.c': { type: 'file' }, 'sender.c': { type: 'file' } } } } }, '5b': { type: 'dir', children: { '.rec.c.swo': { type: 'file', binary: true }, 'progfile': { type: 'file', binary: true }, 'rec': { type: 'file', binary: true }, 'rec.c': { type: 'file' }, 'sender': { type: 'file', binary: true }, 'sender.c': { type: 'file' } } } } } } }
-  }
-};
 
 function getNode(parts) {
   let node = fsTree;
@@ -318,3 +306,8 @@ themeBtn.addEventListener('click', () => {
   statusEl.textContent = 'Ready.';
   render();
 })();
+
+
+
+
+
