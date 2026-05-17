@@ -117,6 +117,30 @@ body {
   margin-bottom: 10px;
 }
 
+.all-files-panel {
+  margin-top: 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
 .exp-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -1,4 +1,7 @@
-﻿const expGrid = document.getElementById('expGrid');
+const expGrid = document.getElementById('expGrid');
+const allFilesPanel = document.getElementById('allFilesPanel');
+const allFilesList = document.getElementById('allFilesList');
+const allFilesMeta = document.getElementById('allFilesMeta');
 const explorerList = document.getElementById('explorerList');
 const viewer = document.getElementById('viewer');
 const statusEl = document.getElementById('status');
@@ -43,6 +46,15 @@ function countMeta(dirNode) {
     else files += 1;
   }
   return { files, dirs };
+}
+
+function collectFiles(node, base = [], out = []) {
+  for (const [name, child] of Object.entries(node.children || {})) {
+    const nextPath = [...base, name];
+    if (child.type === 'dir') collectFiles(child, nextPath, out);
+    else out.push({ name, node: child, path: nextPath });
+  }
+  return out;
 }
 
 function pathText(parts) {
@@ -96,6 +108,7 @@ function renderBreadcrumb() {
       sep.textContent = '>';
       breadcrumb.appendChild(sep);
     }
+
     const btn = document.createElement('button');
     btn.className = `crumb ${idx === crumbs.length - 1 ? 'active' : ''}`;
     btn.type = 'button';
@@ -113,7 +126,7 @@ function renderExperiments(rootNode) {
   expGrid.innerHTML = '';
   const entries = Object.entries(rootNode.children || {})
     .map(([name, node]) => ({ name, node }))
-    .filter((x) => x.name.toLowerCase().includes(query))
+    .filter((entry) => entry.name.toLowerCase().includes(query))
     .sort((a, b) => {
       if (a.node.type !== b.node.type) return a.node.type === 'dir' ? -1 : 1;
       return a.name.localeCompare(b.name);
@@ -124,18 +137,19 @@ function renderExperiments(rootNode) {
     return;
   }
 
-  const folderCount = entries.filter((e) => e.node.type === 'dir').length;
+  const folderCount = entries.filter((entry) => entry.node.type === 'dir').length;
   const fileCount = entries.length - folderCount;
   statusEl.textContent = `${folderCount} folders • ${fileCount} files`;
 
   entries.forEach(({ name, node }) => {
-    const key = name;
-    const card = document.createElement('article');
-    card.className = 'exp-card';
     const isDir = node.type === 'dir';
+    const key = name;
     const meta = isDir ? countMeta(node) : { files: 1, dirs: 0 };
     const icon = isDir ? '📁' : '📄';
     const metaText = isDir ? `${meta.files} files • ${meta.dirs} folders` : 'File';
+
+    const card = document.createElement('article');
+    card.className = 'exp-card';
     card.innerHTML = `
       <div class="exp-head">
         <span class="icon">${icon}</span>
@@ -151,12 +165,12 @@ function renderExperiments(rootNode) {
         viewer.classList.add('hidden');
         render();
       } else {
-        openFile(name, node);
+        openFile(name, node, []);
       }
     });
 
-    card.querySelector('.star').addEventListener('click', (e) => {
-      e.stopPropagation();
+    card.querySelector('.star').addEventListener('click', (event) => {
+      event.stopPropagation();
       if (favorites.has(key)) favorites.delete(key);
       else favorites.add(key);
       persistFavs();
@@ -167,12 +181,41 @@ function renderExperiments(rootNode) {
   });
 }
 
+function renderAllFiles(rootNode) {
+  allFilesList.innerHTML = '';
+  const files = collectFiles(rootNode)
+    .filter((entry) => entry.path.join('/').toLowerCase().includes(query))
+    .sort((a, b) => a.path.join('/').localeCompare(b.path.join('/')));
+
+  allFilesMeta.textContent = `${files.length} files`;
+
+  if (!files.length) {
+    const empty = document.createElement('article');
+    empty.className = 'item';
+    empty.innerHTML = `<span>·</span><div><div class="name">No matching files</div><div class="hint">Try a different search</div></div><span></span>`;
+    allFilesList.appendChild(empty);
+    return;
+  }
+
+  files.forEach((entry) => {
+    const row = document.createElement('article');
+    row.className = 'item';
+    row.innerHTML = `<span>📄</span><div><div class="name">${entry.path.join('/')}</div><div class="hint">${entry.node.binary ? 'Binary/unsupported preview' : 'Open file'}</div></div><span class="hint">open</span>`;
+    row.addEventListener('click', async () => {
+      currentPath = entry.path.slice(0, -1);
+      await openFile(entry.name, entry.node, currentPath);
+      renderBreadcrumb();
+    });
+    allFilesList.appendChild(row);
+  });
+}
+
 function renderExplorer(node) {
   explorerList.innerHTML = '';
 
   let entries = Object.entries(node.children || {}).map(([name, value]) => ({ name, value }));
   entries = entries
-    .filter((e) => e.name.toLowerCase().includes(query))
+    .filter((entry) => entry.name.toLowerCase().includes(query))
     .sort((a, b) => {
       if (a.value.type !== b.value.type) return a.value.type === 'dir' ? -1 : 1;
       return a.name.localeCompare(b.name);
@@ -211,15 +254,15 @@ function renderExplorer(node) {
         render();
         return;
       }
-      await openFile(name, value);
+      await openFile(name, value, currentPath);
     });
 
     explorerList.appendChild(row);
   });
 }
 
-async function openFile(name, node) {
-  const full = [...currentPath, name];
+async function openFile(name, node, basePath = currentPath) {
+  const full = [...basePath, name];
   currentMainFile = name;
   mainTitle.textContent = full.join('/');
   fileMeta.textContent = 'Loading...';
@@ -249,15 +292,19 @@ function render() {
     statusEl.textContent = 'Invalid path';
     expGrid.innerHTML = '';
     explorerList.innerHTML = '';
+    allFilesList.innerHTML = '';
     return;
   }
 
   if (currentPath.length === 0) {
     explorerList.classList.add('hidden');
     expGrid.classList.remove('hidden');
+    allFilesPanel.classList.remove('hidden');
     renderExperiments(rootNode);
+    renderAllFiles(rootNode);
   } else {
     expGrid.classList.add('hidden');
+    allFilesPanel.classList.add('hidden');
     explorerList.classList.remove('hidden');
     renderExplorer(rootNode);
   }
@@ -267,12 +314,16 @@ mainCopyBtn.addEventListener('click', async () => {
   if (!currentMainCode) return;
   try {
     await navigator.clipboard.writeText(currentMainCode);
-    const t = mainCopyBtn.textContent;
+    const original = mainCopyBtn.textContent;
     mainCopyBtn.textContent = 'Copied Successfully';
-    setTimeout(() => { mainCopyBtn.textContent = t; }, 1000);
+    setTimeout(() => {
+      mainCopyBtn.textContent = original;
+    }, 1000);
   } catch {
     mainCopyBtn.textContent = 'Copy Failed';
-    setTimeout(() => { mainCopyBtn.textContent = 'Copy'; }, 1000);
+    setTimeout(() => {
+      mainCopyBtn.textContent = 'Copy';
+    }, 1000);
   }
 });
 
